@@ -72,3 +72,7 @@ CREATE TABLE `node_api`.`messages` (
 
 INSERT INTO `node_api`.`messages` (`data`) VALUES ('Hello World');
 ```
+
+## Nível 2
+
+Acessar teste do <a href="./nivel2.md">nível 2</a>.
