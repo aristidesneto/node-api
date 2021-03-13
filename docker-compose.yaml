@@ -1,0 +1,53 @@
+version: "3.1" 
+services:
+  
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - node_mysql:/var/lib/mysql  
+      - ./scripts:/docker-entrypoint-initdb.d/:ro    
+    environment: 
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-u", "root", "-proot", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - node_api
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: aristidesbneto/node-api
+    working_dir: /usr/src/app
+    env_file: .env
+    volumes: 
+      - ./src:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+    environment: 
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+    ports:
+      - "8080:8080"
+    depends_on: 
+      mysql:
+        condition: service_healthy
+    networks: 
+      - node_api
+
+networks:
+  node_api:
+    driver: bridge
+
+volumes:
+  node_mysql:
+  node_modules:
